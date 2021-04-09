@@ -4,7 +4,6 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 src_image = cv2.imread("data/2.jpg")
-# src_image = src_image[100:150, 0:50, :].copy()
 src_fig = plt.figure()
 plt.subplot(121)
 plt.title("src_image")
@@ -19,7 +18,6 @@ plt.imshow(gray_image)
 
 # 观察灰度图，发现网格线位于图像中的谷线
 
-# Do some rough edge detection to find the grid
 # 对X轴方向和Y轴方向做Sobel梯度提取
 sX = cv2.Sobel(gray_image, cv2.CV_64F, 1, 0, ksize=3, borderType=cv2.BORDER_REPLICATE)
 sY = cv2.Sobel(gray_image, cv2.CV_64F, 0, 1, ksize=3, borderType=cv2.BORDER_REPLICATE)
@@ -37,19 +35,19 @@ plt.subplot(222)
 plt.title("Sobel Y")
 plt.imshow(sY)
 
-# the sum operation projects the edges to the X or Y-axis.
-# The 0.2 damps the high peaks a little
+
 # 对sobel的值进行exp(0.2), 0.2会稍微减弱峰值。
 # 然后进行竖直方向的积分投影
 eX = (sX ** .2).sum(axis=0)
 print(eX.shape)
-eX = np.roll(eX, -1)  # correct for the 1-pixel offset due to Sobel filtering
+eX = np.roll(eX, -1)
 # 将eX的值向前滚动一位。因为Sobel算子计算时，对于单线的局部最大值，会在两边计算出
 # 边缘。当前面过滤掉负值后，右边的边缘与实际的局部最大值相差一个像素。
 # 此处是基于网格线宽度为一个像素的场景特征。
 print(eX.shape)
 plt.subplot(223)
 plt.plot(eX)
+# 观察图片，发现390是一个划分eX的阈值
 
 # 对sobel的值进行exp(0.2), 0.2会稍微减弱峰值。
 # 然后进行水平方向的积分投影
@@ -57,6 +55,7 @@ eY = (sY ** .2).sum(axis=1)
 eY = np.roll(eY, -1)
 plt.subplot(224)
 plt.plot(eY)
+# 观察图片，发现480是一个划分eY的阈值
 
 plt.figure()
 # plt.subplot(121)
